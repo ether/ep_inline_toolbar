@@ -8,7 +8,7 @@ iT = {
   hide: function(){
     var padOuter = $('iframe[name="ace_outer"]').contents().find("body");
     var inlineToolbar = padOuter.find("#inline_toolbar");
-    // $(inlineToolbar).hide();
+    $(inlineToolbar).hide();
   },
   show: function(selStart, selEnd){
     var XY = getXYOffsetOfRep(selStart, selEnd);
@@ -158,8 +158,11 @@ function drawAt(XY){
     padOuter.append("<div id='inline_toolbar' class='toolbar'></div>");
     var toolbar = padOuter.find("#inline_toolbar");
     $('.menu_left').clone(true, true).appendTo(toolbar);
+    $(toolbar).find(".menu_left").css("right", "0px");
+    $(toolbar).find(".menu_left").css("margin-left", "0px");
     $(toolbar).css("background", "none");
     $(toolbar).css("border-bottom", "none");
+    $(toolbar).css("max-width", "30%");
   }
   var toolbar = padOuter.find("#inline_toolbar");
 
