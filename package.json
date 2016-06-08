@@ -1,0 +1,16 @@
+{
+  "description": "Adds inline toolbar support to a Pad",
+  "name": "ep_inline_toolbar",
+  "version": "0.0.1",
+  "author": {
+    "name": "John McLear",
+    "email": "john@mclear.co.uk"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JohnMcLear/ep_inline_toolbar"
+  }
+}
