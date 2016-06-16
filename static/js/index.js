@@ -162,7 +162,6 @@ function drawAt(XY){
     $(toolbar).find(".menu_left").css("margin-left", "0px");
     $(toolbar).css("background", "none");
     $(toolbar).css("border-bottom", "none");
-    $(toolbar).css("max-width", "30%");
   }
   var toolbar = padOuter.find("#inline_toolbar");
 
