@@ -154,9 +154,11 @@ function getXYOffsetOfRep(selStart, selEnd){
 
 // Draws the toolbar onto the screen
 function drawAt(XY){
+  
   var padOuter = $('iframe[name="ace_outer"]').contents().find("body");
   var toolbar = padOuter.find("#inline_toolbar");
 
+  toolbar.show();
   toolbar.css({
     "position": "absolute"
   });
@@ -236,12 +238,13 @@ function wrap(target, key) { // key can probably be removed here..
 }
 
 exports.postAceInit = function (hook_name, context) {
+  $("#inline_toolbar").hide();
   var ace = context.ace;
   var pad = context.pad;
 
   var padOuter = $('iframe[name="ace_outer"]').contents().find("body");
   
-  $("#inlineToolbar [data-key]").each(function () {
+  $("#inline_toolbar [data-key]").each(function () {
     $(this).unbind("click");
     var command = $(this).data('key');
     $(this).on('click', function () {
