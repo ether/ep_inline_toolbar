@@ -4,14 +4,18 @@
       "name":"inline_toolbar",
       "post": ["ep_etherpad-lite/static"],
       "client_hooks": {
+        "postAceInit": "ep_inline_toolbar/static/js/index",
         "aceEditorCSS": "ep_inline_toolbar/static/js/index",
         "aceSelectionChanged": "ep_inline_toolbar/static/js/index"
       },
       "hooks": {
+        "loadSettings": "ep_inline_toolbar/index",
+        "eejsBlock_body": "ep_inline_toolbar/index",
         "eejsBlock_scripts": "ep_inline_toolbar/index",
         "eejsBlock_mySettings": "ep_inline_toolbar/index",
         "eejsBlock_styles": "ep_inline_toolbar/index",
-        "clientVars": "ep_inline_toolbar/index"
+        "clientVars": "ep_inline_toolbar/index",
+        "padInitToolbar": "ep_inline_toolbar/index"
       }
     }
   ]

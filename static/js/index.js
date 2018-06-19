@@ -2,6 +2,8 @@ var _, $, jQuery;
 var $ = require('ep_etherpad-lite/static/js/rjquery').$;
 var _ = require('ep_etherpad-lite/static/js/underscore');
 var padcookie = require('ep_etherpad-lite/static/js/pad_cookie').padcookie;
+var padEditBar = require('ep_etherpad-lite/static/js/pad_editbar').padeditbar;
+
 var globalKey = 0;
 
 iT = {
@@ -154,16 +156,6 @@ function getXYOffsetOfRep(selStart, selEnd){
 function drawAt(XY){
   var padOuter = $('iframe[name="ace_outer"]').contents().find("body");
   var toolbar = padOuter.find("#inline_toolbar");
-  if(toolbar.length === 0){
-    padOuter.append("<div id='inline_toolbar' class='toolbar'></div>");
-    var toolbar = padOuter.find("#inline_toolbar");
-    $('.menu_left').clone(true, true).appendTo(toolbar);
-    $(toolbar).find(".menu_left").css("right", "0px");
-    $(toolbar).find(".menu_left").css("margin-left", "0px");
-    $(toolbar).css("background", "none");
-    $(toolbar).css("border-bottom", "none");
-  }
-  var toolbar = padOuter.find("#inline_toolbar");
 
   toolbar.css({
     "position": "absolute"
@@ -241,4 +233,23 @@ function wrap(target, key) { // key can probably be removed here..
     }
   });
   return newtarget.html();
+}
+
+exports.postAceInit = function (hook_name, context) {
+  var ace = context.ace;
+  var pad = context.pad;
+
+  var padOuter = $('iframe[name="ace_outer"]').contents().find("body");
+  
+  $("#inlineToolbar [data-key]").each(function () {
+    $(this).unbind("click");
+    var command = $(this).data('key');
+    $(this).on('click', function () {
+      padEditBar.triggerCommand(command, $(this));
+    });
+  });
+
+  $("#inline_toolbar").detach().appendTo(padOuter[0]);
+  
+  
 }
