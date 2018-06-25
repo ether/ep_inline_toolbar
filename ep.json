@@ -3,6 +3,7 @@
     {
       "name":"inline_toolbar",
       "post": ["ep_etherpad-lite/static"],
+      "pre": ["ep_*"],
       "client_hooks": {
         "postAceInit": "ep_inline_toolbar/static/js/index",
         "aceEditorCSS": "ep_inline_toolbar/static/js/index",

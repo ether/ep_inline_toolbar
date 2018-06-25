@@ -247,6 +247,14 @@ exports.postAceInit = function (hook_name, context) {
   $("#inline_toolbar [data-key]").each(function () {
     $(this).unbind("click");
     var command = $(this).data('key');
+    
+    if ($(this).data('type') === 'link') {
+      $(this).addClass('link');
+      var spanItem = $(this).find('span.buttonicon')[0];
+      var translationId = $(spanItem).data('l10n-id');
+      
+      $(spanItem).html(html10n.get(translationId));
+    }
     $(this).on('click', function () {
       padEditBar.triggerCommand(command, $(this));
     });

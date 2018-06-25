@@ -12,15 +12,47 @@ exports.loadSettings = function (hook_name, context) {
 
 exports.padInitToolbar = function (hook_name, context) {
     var availableButtons = context.toolbar.availableButtons;
+
     inlineButtons = [];
     inlineMenuItems.forEach(function (inlineBlock) {
         if (_.isArray(inlineBlock)) {
             var buttons = [];
             inlineBlock.forEach(function (buttonName) {
-                if (availableButtons[buttonName]) {
-                    var buttonItem = context.toolbar.button(availableButtons[buttonName]);
+              var buttonType = null;
+              var buttonTitle = null;
+              var localizationId = null;
+                if (_.isObject(buttonName)) {
+                  var objKey = Object.keys(buttonName)[0];
+                  var keySettings = buttonName[objKey];
+                  buttonType = keySettings.buttonType;
+                  buttonTitle = keySettings.title;
+                  localizationId = keySettings.localizationId;
+                  buttonName = objKey;
+                }
 
-                    buttons.push(buttonItem.render());
+                if (availableButtons[buttonName]) {
+                    var buttonItem = availableButtons[buttonName];
+                    if (availableButtons[buttonName].attributes) {
+                      buttonItem = availableButtons[buttonName].attributes;
+                    }
+
+                    if (localizationId) {
+                      buttonItem.localizationId = localizationId;
+                      buttonTitle = localizationId;
+                    }
+                    buttonItem = context.toolbar.button(buttonItem);
+                    
+                    var buttonHtml = buttonItem.render();
+
+                    if (buttonType === 'link') {
+                      buttonHtml = buttonHtml.replace('<button', '<span').replace('</button>', '</span>').replace('data-type="button"', 'data-type="link"');
+                    }
+
+                    if (buttonTitle) {
+                      buttonHtml = buttonHtml.replace('</span>', buttonTitle +'</span>');
+                    }
+
+                    buttons.push(buttonHtml);
                 }   
               });
 
