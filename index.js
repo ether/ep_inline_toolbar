@@ -84,11 +84,3 @@ exports.eejsBlock_styles = function (hook_name, args, cb) {
   args.content = args.content + eejs.require("ep_inline_toolbar/templates/styles.html", {}, module);
   return cb();
 };
-
-
-// not used
-exports.clientVars = function (hook, context, cb) {
-  var displayCommentAsIcon = settings.ep_inline_toolbar ? settings.ep_inline_toolbar.displayCommentAsIcon : false;
-  return cb({ "displayCommentAsIcon": displayCommentAsIcon });
-};
-
