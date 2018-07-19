@@ -28,7 +28,6 @@ exports.aceSelectionChanged = function(hook, context){
   var selStart = context.rep.selStart;
   var selEnd = context.rep.selEnd;
   if((selStart[0] !== selEnd[0]) || (selStart[1] !== selEnd[1])){
-    // console.log("selection made, showing inline toolbar");
     iT.show(selStart, selEnd);
   }else{
     iT.hide();
@@ -40,8 +39,10 @@ exports.aceEditorCSS = function(hook, context){
 
 // Given a rep we get the X and Y px offset
 function getXYOffsetOfRep(selStart, selEnd){
+  var viewPosition = clientVars.ep_inline_toolbar.position || 'top';
   var padOuter = $('iframe[name="ace_outer"]').contents();
   var padInner = padOuter.find('iframe[name="ace_inner"]');
+  var topCorrection = padInner.offset().top;
   var x = selStart[1];
   var y = selEnd[0];
   y = y+1;
@@ -59,77 +60,47 @@ function getXYOffsetOfRep(selStart, selEnd){
   var stickLeft = true;
 
   // Get the target Line
-  var div = $('iframe[name="ace_outer"]').contents().find('iframe').contents().find('#innerdocbody').find("div:nth-child("+y+")");
+  var line = getSelectedLineElement();
+  var divEl = $(line.lineNode);
+  var div = divEl.clone();
+  inner.contents().find('body').append(div);
+  div.css({position: 'absolute'});
+  div.css(divEl.offset());
   var divWidth = div.width();
 
   // Is the line visible yet?
-  if ( div.length !== 0 ) {
-    var top = $(div).offset().top -10; // A standard generic offset
-
+  if ( divEl.length !== 0 ) {
+    var top = divEl.offset().top + topCorrection; // A standard generic offset
     // Get the HTML
     var html = $(div).html();
-
-    // if Div contains block attribute IE h1 or H2 then increment by the number
-    if ( $(div).children("span").length < 1 ){ x = x - 1; }// This is horrible but a limitation because I'm parsing HTML
-
-    // Get the new string but maintain mark up
-    var newText = html_substr(html, (x));
-
-    // A load of fugly HTML that can prolly be moved ot CSS
-    var newLine = "<span style='width:"+divWidth+"px' id='hiddenWorker' class='ghettoCursorXPos'>"+newText+"</span>";
-    // GlobalKey
-    globalKey = 0;
-
-    // Add the HTML to the DOM
-    var worker = $('iframe[name="ace_outer"]').contents().find('#outerdocbody').append(newLine);
-
-    // Get the worker element
-    var worker = $('iframe[name="ace_outer"]').contents().find('#outerdocbody').find("#hiddenWorker");
-
-    // add some CSS to the worker
-    $(worker).css({
-      "white-space":"pre-wrap",
-      "word-wrap":"break-word",
-      "z-index":"99999",
-      "background":"red",
-      "position":"fixed",
-      "top":"80px",
-      "left":"33px",
-      "margin-right":"10px",
-      "font-size":"12px",
-      "line-height":"16px"
-    })
-
-    // Wrap teh HTML in spans so we cna find a char
-    $(worker).html(wrap($(worker), true));
-    // console.log($(worker).html(), x);
-
-    // Get the Left offset of the x span
-    var span = $(worker).find("[data-key="+(x-1)+"]");
-
-    // Get the width of the element (This is how far out X is in px);
-    if(span.length !== 0){
-      var left = span.position().left;
-    }else{
-      var left = 0;
+    var text = $(div).text().split('');
+    var workerIndex;
+    if (viewPosition === 'right') {
+      if (selEnd[0] > selStart[0] && selEnd[1] === 0) {
+        var prevLine =  getLineAtIndex(selEnd[0] -1);
+        workerIndex = $(prevLine.lineNode).text().length - 1;
+      } else {
+        workerIndex = selEnd[1];
+      }
+    } else {
+      workerIndex = selStart[1];
     }
+    text.splice(workerIndex, 0, '</span>');
+    text.splice(workerIndex, 0, '<span id="selectWorker">');
+    $(div).html(text.join(''));
+    var worker = $(div).find('#selectWorker');
+    var workerPosition = worker.position();
+   
+    // Get the width of the element (This is how far out X is in px);
+    var left = workerPosition.left || 0;
 
     // Get the height of the element minus the inner line height
-    var height = worker.height(); // the height of the worker
-    top = top + height - span.height(); // plus the top offset minus the actual height of our focus span
-
-    if(top <= 0){  // If the tooltip wont be visible to the user because it's too high up
-      stickUp = true;
-      top = top + (span.height()*2);
-      if(top < 0){ top = 0; } // handle case where caret is in 0,0
-    }
-
     // Add the innerdocbody offset
     left = left + leftOffset;
 
     // Add support for page view margins
-    var divMargin = $(div).css("margin-left");
-    var innerdocbodyMargin = $(div).parent().css("margin-left"); 
+    var divMargin = $(divEl).css("margin-left");
+    var innerdocbodyMargin = $(divEl).parent().css("margin-left"); 
     if(innerdocbodyMargin){
       innerdocbodyMargin = innerdocbodyMargin.replace("px", "");
       innerdocbodyMargin = parseInt(innerdocbodyMargin);
@@ -138,16 +109,36 @@ function getXYOffsetOfRep(selStart, selEnd){
     }
     if(divMargin){
       divMargin = divMargin.replace("px", "");
-      // console.log("Margin is ", divMargin);
       divMargin = parseInt(divMargin);
       if((divMargin + innerdocbodyMargin) > 0){
-        // console.log("divMargin", divMargin);
         left = left + divMargin;
       }
     }
+    //adjust position 
+    if (viewPosition === 'top') {
+      top = top - padOuter.find("#inline_toolbar").height();
+    
+      if(top <= 0 ){  // If the tooltip wont be visible to the user because it's too high up
+        stickUp = true;
+        top = top + padOuter.find("#inline_toolbar").height();
+        if(top < 0){ top = 0; } // handle case where caret is in 0,0
+      }
+    } else if (viewPosition === 'bottom') {
+      top = top + divEl.height();
 
+      if(top >= padOuter.height() ){  // If the tooltip wont be visible to the user because it's too high up
+        stickUp = true;
+        top = top - (padOuter.find("#inline_toolbar").height() * 2);
+      }
+    } else if (viewPosition === 'right') {
+      top = top +($(div).height()/2);
+    } else if (viewPosition === 'left') {
+      left = left - padOuter.find("#inline_toolbar").width();
+      top  = top +($(div).height()/2);
+    } 
     // Remove the element
-    $('iframe[name="ace_outer"]').contents().find('#outerdocbody').contents().remove("#hiddenWorker");
+    $(div).remove();
+    //$('iframe[name="ace_outer"]').contents().find('#outerdocbody').contents().remove("#hiddenWorker");
     return [left, top];
   }
 }
@@ -160,10 +151,10 @@ function drawAt(XY){
 
   toolbar.show();
   toolbar.css({
-    "position": "absolute"
+    "position": "absolute",
+    "left": XY[0],
+    "top": XY[1]
   });
-  $(toolbar).css("left", XY[0]);
-  $(toolbar).css("top", XY[1]-20);
 }
 
 
@@ -229,7 +220,6 @@ function wrap(target, key) { // key can probably be removed here..
       newtarget.append($(newhtml));
     }
     else { // recursion FTW!
-      // console.log("recursion"); // IE handles recursion badly
       $(this).html(wrap($(this), key)); // This really hurts doing any sort of count..
       newtarget.append($(this));
     }
@@ -238,12 +228,14 @@ function wrap(target, key) { // key can probably be removed here..
 }
 
 exports.postAceInit = function (hook_name, context) {
-  $("#inline_toolbar").hide();
+  iT.hide();
   var ace = context.ace;
   var pad = context.pad;
 
   var padOuter = $('iframe[name="ace_outer"]').contents().find("body");
-  
+  padOuter.on('click', function () {
+    iT.hide();
+  });
   $("#inline_toolbar [data-key]").each(function () {
     $(this).unbind("click");
     var command = $(this).data('key');
@@ -256,6 +248,7 @@ exports.postAceInit = function (hook_name, context) {
       $(spanItem).html(html10n.get(translationId));
     }
     $(this).on('click', function () {
+      iT.hide();
       padEditBar.triggerCommand(command, $(this));
     });
   });
@@ -263,4 +256,48 @@ exports.postAceInit = function (hook_name, context) {
   $("#inline_toolbar").detach().appendTo(padOuter[0]);
   
   
+}
+
+var lastLineSelectedIsEmpty = function(rep, lastLineSelected) {
+  var line = rep.lines.atIndex(lastLineSelected);
+  // when we've a line with line attribute, the first char line position
+  // in a line is 1 because of the *, otherwise is 0
+  var firstCharLinePosition = (line.lineMarker === 1) ? 1 : 0;
+  var lastColumnSelected = rep.selEnd[1];
+
+  return lastColumnSelected === firstCharLinePosition;
+}
+
+var getLastLine = function(rep) {
+  var firstLine = rep.selStart[0];
+  var lastLineSelected = rep.selEnd[0];
+
+  if (lastLineSelected > firstLine){
+    // Ignore last line if the selected text of it it is empty
+    if(lastLineSelectedIsEmpty(rep, lastLineSelected)){
+      lastLineSelected--;
+    }
+  }
+  return lastLineSelected;
+}
+
+var getLineAtIndex = function (index) {
+  return this.rep.lines.atIndex(index);
+}
+
+var getSelectedLineElement = function () {
+  var index;
+  if (clientVars.ep_inline_toolbar.position === 'top') {
+    index = this.rep.selStart[0];
+  } else {
+    index =  getLastLine(this.rep);
+  }
+
+  var selectedLine = this.rep.lines.atIndex(index);
+  return selectedLine;
+};
+
+exports.aceInitialized = function(hook, context){
+  getSelectedLineElement = _(getSelectedLineElement).bind(context);
+  getLineAtIndex = _(getLineAtIndex).bind(context);
 }

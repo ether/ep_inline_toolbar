@@ -10,6 +10,12 @@ exports.loadSettings = function (hook_name, context) {
     inlineMenuItems = context.settings.toolbar.inline;
 };
 
+exports.clientVars = function(hook, context, callback)
+{
+  // tell the client which year we are in
+  return callback({ "ep_inline_toolbar": settings.ep_inline_toolbar });
+};
+
 exports.padInitToolbar = function (hook_name, context) {
     var availableButtons = context.toolbar.availableButtons;
 
@@ -58,7 +64,6 @@ exports.padInitToolbar = function (hook_name, context) {
 
             inlineButtons.push(buttons);
         }
-        console.log(inlineButtons);
     });
 };
 
