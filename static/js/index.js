@@ -136,6 +136,8 @@ function getXYOffsetOfRep(selStart, selEnd){
       left = left - padOuter.find("#inline_toolbar").width();
       top  = top +($(div).height()/2);
     } 
+    console.log('SELECTION', selStart, selEnd, top);
+    console.log(div);
     // Remove the element
     $(div).remove();
     //$('iframe[name="ace_outer"]').contents().find('#outerdocbody').contents().remove("#hiddenWorker");
