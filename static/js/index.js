@@ -77,8 +77,8 @@ function getXYOffsetOfRep(selStart, selEnd){
     var workerIndex;
     if (viewPosition === 'right') {
       if (selEnd[0] > selStart[0] && selEnd[1] === 0) {
-        var prevLine =  getLineAtIndex(selEnd[0] -1);
-        workerIndex = $(prevLine.lineNode).text().length - 1;
+        line =  getLineAtIndex(selEnd[0] -1);
+        workerIndex = $(line.lineNode).text().length - 1;
       } else {
         workerIndex = selEnd[1];
       }
@@ -87,7 +87,12 @@ function getXYOffsetOfRep(selStart, selEnd){
     }
     text.splice(workerIndex, 0, '</span>');
     text.splice(workerIndex, 0, '<span id="selectWorker">');
-    $(div).html(text.join(''));
+    var heading = isHeading();
+    text = text.join('');
+    if (heading) {
+      text = '<'+heading+'>' + text + '</'+heading+'>';
+    }
+    $(div).html(text);
     var worker = $(div).find('#selectWorker');
     var workerPosition = worker.position();
    
@@ -135,12 +140,9 @@ function getXYOffsetOfRep(selStart, selEnd){
     } else if (viewPosition === 'left') {
       left = left - padOuter.find("#inline_toolbar").width();
       top  = top +($(div).height()/2);
-    } 
-    console.log('SELECTION', selStart, selEnd, top);
-    console.log(div);
+    }
     // Remove the element
     $(div).remove();
-    //$('iframe[name="ace_outer"]').contents().find('#outerdocbody').contents().remove("#hiddenWorker");
     return [left, top];
   }
 }
@@ -249,7 +251,7 @@ exports.postAceInit = function (hook_name, context) {
       
       $(spanItem).html(html10n.get(translationId));
     }
-    $(this).on('click', function () {
+    $(this).parent().on('click', function () {
       iT.hide();
       padEditBar.triggerCommand(command, $(this));
     });
@@ -287,6 +289,24 @@ var getLineAtIndex = function (index) {
   return this.rep.lines.atIndex(index);
 }
 
+var isHeading = function (index) {
+  var index;
+  if (clientVars.ep_inline_toolbar.position === 'top') {
+    index = this.rep.selStart[0];
+  } else {
+    index =  getLastLine(this.rep);
+  }
+  var attribs = this.documentAttributeManager.getAttributesOnLine(index);
+  for (var i=0; i<attribs.length; i++) {
+    if (attribs[i][0] === 'heading') {
+      var value = attribs[i][1];
+      i = attribs.length;
+      return value;
+    }
+  }
+  return false;
+}
+
 var getSelectedLineElement = function () {
   var index;
   if (clientVars.ep_inline_toolbar.position === 'top') {
@@ -302,4 +322,5 @@ var getSelectedLineElement = function () {
 exports.aceInitialized = function(hook, context){
   getSelectedLineElement = _(getSelectedLineElement).bind(context);
   getLineAtIndex = _(getLineAtIndex).bind(context);
+  isHeading = _(isHeading).bind(context);
 }
