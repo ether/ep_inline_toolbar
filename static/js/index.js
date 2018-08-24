@@ -251,7 +251,7 @@ exports.postAceInit = function (hook_name, context) {
       
       $(spanItem).html(html10n.get(translationId));
     }
-    $(this).parent().on('click', function () {
+    $(this).on('click', function () {
       iT.hide();
       padEditBar.triggerCommand(command, $(this));
     });
