@@ -13,64 +13,74 @@ exports.loadSettings = function (hook_name, context) {
 exports.clientVars = function(hook, context, callback)
 {
   // tell the client which year we are in
-  return callback({ "ep_inline_toolbar": settings.ep_inline_toolbar });
+  createInlineToolbar();
+  return callback({ "ep_inline_toolbar": settings.ep_inline_toolbar, "inlineButtons": inlineButtons });
 };
 
-exports.padInitToolbar = function (hook_name, context) {
-    var availableButtons = context.toolbar.availableButtons;
+var createInlineToolbar = function () {
+  var toolbar = this.toolbar;
+  if (toolbar) {
+      
+    var availableButtons = toolbar.availableButtons;
 
     inlineButtons = [];
     inlineMenuItems.forEach(function (inlineBlock) {
-        if (_.isArray(inlineBlock)) {
-            var buttons = [];
-            inlineBlock.forEach(function (buttonName) {
-              var buttonType = null;
-              var buttonTitle = null;
-              var localizationId = null;
-                if (_.isObject(buttonName)) {
-                  var objKey = Object.keys(buttonName)[0];
-                  var keySettings = buttonName[objKey];
-                  buttonType = keySettings.buttonType;
-                  buttonTitle = keySettings.title;
-                  localizationId = keySettings.localizationId;
-                  buttonName = objKey;
-                }
+      if (_.isArray(inlineBlock)) {
+          var buttons = [];
+          inlineBlock.forEach(function (buttonName) {
+            var buttonType = null;
+            var buttonTitle = null;
+            var localizationId = null;
+              if (_.isObject(buttonName)) {
+                var objKey = Object.keys(buttonName)[0];
+                var keySettings = buttonName[objKey];
+                buttonType = keySettings.buttonType;
+                buttonTitle = keySettings.title;
+                localizationId = keySettings.localizationId;
+                buttonName = objKey;
+              }
 
-                if (availableButtons[buttonName]) {
-                    var buttonItem = availableButtons[buttonName];
-                    if (availableButtons[buttonName].attributes) {
-                      buttonItem = availableButtons[buttonName].attributes;
-                    }
+              if (availableButtons[buttonName]) {
+                  var buttonItem = availableButtons[buttonName];
+                  if (availableButtons[buttonName].attributes) {
+                    buttonItem = availableButtons[buttonName].attributes;
+                  }
 
-                    if (localizationId) {
-                      buttonItem.localizationId = localizationId;
-                      buttonTitle = localizationId;
-                    }
-                    buttonItem = context.toolbar.button(buttonItem);
-                    
-                    var buttonHtml = buttonItem.render();
+                  if (localizationId) {
+                    buttonItem.localizationId = localizationId;
+                    buttonTitle = localizationId;
+                  }
+                  buttonItem = toolbar.button(buttonItem);
+                  
+                  var buttonHtml = buttonItem.render();
 
-                    if (buttonType === 'link') {
-                      buttonHtml = buttonHtml.replace('<button', '<span').replace('</button>', '</span>').replace('data-type="button"', 'data-type="link"');
-                    }
+                  if (buttonType === 'link') {
+                    buttonHtml = buttonHtml.replace('<button', '<span').replace('</button>', '</span>').replace('data-type="button"', 'data-type="link"');
+                  }
 
-                    if (buttonTitle) {
-                      buttonHtml = buttonHtml.replace('</span>', buttonTitle +'</span>');
-                    }
+                  if (buttonTitle) {
+                    buttonHtml = buttonHtml.replace('</span>', buttonTitle +'</span>');
+                  }
 
-                    buttons.push(buttonHtml);
-                }   
-              });
+                  buttons.push(buttonHtml);
+              }   
+            });
 
-            inlineButtons.push(buttons);
-        }
+          inlineButtons.push(buttons);
+      }
     });
+  }
 };
 
+
+exports.padInitToolbar = function (hook_name, context) {
+  createInlineToolbar = _(createInlineToolbar).bind(context);
+};
+
+
 exports.eejsBlock_body = function (hook_name, args, cb) {
-  args.content = args.content + eejs.require("ep_inline_toolbar/templates/menuButtons.ejs", {
-    buttons: inlineButtons
-  });
+  args.content = args.content + eejs.require("ep_inline_toolbar/templates/menuButtons.ejs");
+
   return cb();
 };
 

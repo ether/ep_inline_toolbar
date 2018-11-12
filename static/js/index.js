@@ -324,3 +324,11 @@ exports.aceInitialized = function(hook, context){
   getLineAtIndex = _(getLineAtIndex).bind(context);
   isHeading = _(isHeading).bind(context);
 }
+
+exports.postToolbarInit = function (hook, context) {
+  if (clientVars.inlineButtons && clientVars.inlineButtons.length) {
+    $.each(clientVars.inlineButtons, function (key, item) {
+      $('#inline_toolbar_menu_items').append(item);
+    });
+  }
+}
