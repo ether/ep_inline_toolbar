@@ -3,6 +3,7 @@ var $ = require('ep_etherpad-lite/static/js/rjquery').$;
 var _ = require('ep_etherpad-lite/static/js/underscore');
 var padcookie = require('ep_etherpad-lite/static/js/pad_cookie').padcookie;
 var padEditBar = require('ep_etherpad-lite/static/js/pad_editbar').padeditbar;
+var Security = require('ep_etherpad-lite/static/js/security');
 
 var globalKey = 0;
 
@@ -73,7 +74,9 @@ function getXYOffsetOfRep(selStart, selEnd){
     var top = divEl.offset().top + topCorrection; // A standard generic offset
     // Get the HTML
     var html = $(div).html();
-    var text = $(div).text().split('');
+    var text = $(div).text();
+    text = Security.escapeHTML(text).split('');
+    
     var workerIndex;
     if (viewPosition === 'right') {
       if (selEnd[0] > selStart[0] && selEnd[1] === 0) {
@@ -89,9 +92,11 @@ function getXYOffsetOfRep(selStart, selEnd){
     text.splice(workerIndex, 0, '<span id="selectWorker">');
     var heading = isHeading();
     text = text.join('');
+    
     if (heading) {
       text = '<'+heading+'>' + text + '</'+heading+'>';
     }
+
     $(div).html(text);
     var worker = $(div).find('#selectWorker');
     var workerPosition = worker.position();
