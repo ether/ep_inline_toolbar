@@ -1,7 +1,7 @@
 var eejs = require('ep_etherpad-lite/node/eejs/');
 var settings = require('ep_etherpad-lite/node/utils/Settings');
 
-var _ = require('underscore');
+var _ = require('ep_etherpad-lite/node_modules/underscore');
 
 var inlineMenuItems;
 var inlineButtons = [];
@@ -14,15 +14,13 @@ exports.clientVars = function(hook, context, callback)
 {
   // tell the client which year we are in
   createInlineToolbar();
-  return callback({ "ep_inline_toolbar": settings.ep_inline_toolbar, "inlineButtons": inlineButtons });
+  return callback({ "ep_inline_toolbar": settings.ep_inline_toolbar || {}, "inlineButtons": inlineButtons });
 };
 
 var createInlineToolbar = function () {
   var toolbar = this.toolbar;
   if (toolbar) {
-      
     var availableButtons = toolbar.availableButtons;
-
     inlineButtons = [];
     inlineMenuItems.forEach(function (inlineBlock) {
       if (_.isArray(inlineBlock)) {
@@ -51,7 +49,7 @@ var createInlineToolbar = function () {
                     buttonTitle = localizationId;
                   }
                   buttonItem = toolbar.button(buttonItem);
-                  
+
                   var buttonHtml = buttonItem.render();
 
                   if (buttonType === 'link') {
@@ -63,7 +61,7 @@ var createInlineToolbar = function () {
                   }
 
                   buttons.push(buttonHtml);
-              }   
+              }
             });
 
           inlineButtons.push(buttons);

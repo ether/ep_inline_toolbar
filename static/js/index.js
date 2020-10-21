@@ -40,7 +40,10 @@ exports.aceEditorCSS = function(hook, context){
 
 // Given a rep we get the X and Y px offset
 function getXYOffsetOfRep(selStart, selEnd){
-  var viewPosition = clientVars.ep_inline_toolbar.position || 'top';
+  var viewPosition = "top";
+  if(clientVars.ep_inline_toolbar && clientVars.ep_inline_toolbar.position){
+    viewPosition = clientVars.ep_inline_toolbar.position;
+  }
   var padOuter = $('iframe[name="ace_outer"]').contents();
   var padInner = padOuter.find('iframe[name="ace_inner"]');
   var topCorrection = padInner.offset().top;
@@ -100,7 +103,7 @@ function getXYOffsetOfRep(selStart, selEnd){
     $(div).html(text);
     var worker = $(div).find('#selectWorker');
     var workerPosition = worker.position();
-   
+
     // Get the width of the element (This is how far out X is in px);
     var left = workerPosition.left || 0;
 
