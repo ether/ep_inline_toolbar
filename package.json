@@ -12,5 +12,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/JohnMcLear/ep_inline_toolbar"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "http://etherpad.org/"
   }
 }
