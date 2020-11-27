@@ -14,7 +14,6 @@
       "hooks": {
         "loadSettings": "ep_inline_toolbar/index",
         "eejsBlock_body": "ep_inline_toolbar/index",
-        "eejsBlock_scripts": "ep_inline_toolbar/index",
         "eejsBlock_mySettings": "ep_inline_toolbar/index",
         "eejsBlock_styles": "ep_inline_toolbar/index",
         "padInitToolbar": "ep_inline_toolbar/index",

@@ -7,7 +7,7 @@
     "email": "john@mclear.co.uk"
   },
   "engines": {
-    "node": "*"
+    "node": "^10.13.0"
   },
   "repository": {
     "type": "git",
@@ -32,5 +32,8 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
+  },
+  "peerDependencies": {
+    "ep_etherpad-lite": ">=1.8.6"
   }
 }

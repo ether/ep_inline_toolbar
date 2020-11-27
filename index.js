@@ -1,6 +1,7 @@
+'use strict';
+
 const eejs = require('ep_etherpad-lite/node/eejs/');
 const settings = require('ep_etherpad-lite/node/utils/Settings');
-
 const _ = require('ep_etherpad-lite/node_modules/underscore');
 
 let inlineMenuItems;
@@ -21,6 +22,7 @@ var createInlineToolbar = function () {
   if (toolbar) {
     const availableButtons = toolbar.availableButtons;
     inlineButtons = [];
+    if(inlineButtons.length === 0) return;
     inlineMenuItems.forEach((inlineBlock) => {
       if (_.isArray(inlineBlock)) {
         const buttons = [];
