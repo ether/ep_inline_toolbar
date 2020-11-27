@@ -22,7 +22,7 @@ var createInlineToolbar = function () {
   if (toolbar) {
     const availableButtons = toolbar.availableButtons;
     inlineButtons = [];
-    if(inlineButtons.length === 0) return;
+    if (inlineButtons.length === 0) return;
     inlineMenuItems.forEach((inlineBlock) => {
       if (_.isArray(inlineBlock)) {
         const buttons = [];
