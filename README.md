@@ -1,9 +1,9 @@
 # Inline toolbar for Etherpad
 
-A simple way to add the toolbar buttons inline on the editor.  These buttons only appear when you highlight text
+A simple way to add the toolbar buttons inline on the editor.  These buttons only appear when you highlight text with a mouse.
 
 # Usage
-Buttons must be added to settings.json in teh toolbar section as a section called ``inline``
+Buttons must be added to settings.json in the toolbar section as a section called ``inline``
 
 For example..
 
@@ -23,8 +23,11 @@ For example..
     "timeslider": [
       ["timeslider_export", "timeslider_returnToPad"]
     ],
-    "inline":[["bold"]]
+    "inline":[["bold", "italic"]]
   },
 ```
 
-The above example will make bold show up inline
+The above example will make bold and italic show up inline.
+
+# TODO
+- [ ] Sort X offset
