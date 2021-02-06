@@ -42,7 +42,6 @@ exports.postAceInit = (hookName, context) => {
   });
 };
 
-// TODO needs testing!!
 // Creates the buttons based on settings and draws them hidden on the screen
 exports.postToolbarInit = (hook, context) => {
   let buttonsToShow = [];
