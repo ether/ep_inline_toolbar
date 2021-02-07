@@ -31,9 +31,6 @@ For example..
 
 The above example will make bold and italic show up inline.
 
-# TODO
-- [ ] X offset
-
 # License
 
 Apache 2
