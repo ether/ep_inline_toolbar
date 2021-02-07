@@ -30,13 +30,11 @@ exports.postAceInit = (hookName, context) => {
     iT.hide();
   });
   padInner.on('mouseup', (e) => {
-    iT.hide();
-    // change css position :)
-    // STILL TODO: Take into account X offset properly
     const toolbar = padOuter.find('#inline_toolbar');
+    const left = e.pageX + padOuter.find('iframe').offset().left;
     toolbar.css({
       position: 'absolute',
-      left: e.pageX,
+      left,
       top: e.pageY,
     });
   });
