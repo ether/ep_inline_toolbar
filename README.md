@@ -1,3 +1,5 @@
+![Publish Status](https://github.com/ether/ep_inline_toolbar/workflows/Node.js%20Package/badge.svg) ![Backend Tests Status](https://github.com/ether/ep_inline_toolbar/workflows/Backend%20tests/badge.svg)
+
 ![Screenshot](https://user-images.githubusercontent.com/220864/107128330-a6657100-68b4-11eb-96f1-eec53579b1fd.png)
 
 # Inline toolbar for Etherpad
