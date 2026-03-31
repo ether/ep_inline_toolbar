@@ -1,7 +1,7 @@
 {
   "description": "Adds inline toolbar support to a Pad",
   "name": "ep_inline_toolbar",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "author": {
     "name": "John McLear",
     "email": "john@mclear.co.uk"
