@@ -50,12 +50,21 @@ exports.postToolbarInit = (hook, context) => {
   }
   $('#editbar .menu_left').children('[data-key]').each(function () {
     const key = $(this).data('key');
-    if (buttonsToShow.indexOf(key) !== -1) {
-      $('#inline_toolbar_menu_items').append(this);
-    } else {
-      $('#inline_toolbar_menu_items').append(this);
-      $(this).css('display', 'none');
-    }
+    if (buttonsToShow.indexOf(key) === -1) return;
+    // Clone the button into the inline toolbar instead of moving it: the
+    // previous logic called `.append(this)` which *moves* the DOM node,
+    // so every toolbar item ended up inside #inline_toolbar_menu_items and
+    // the main toolbar was left empty (regression for #10, #11, #66).
+    // We re-bind the click on the clone because jQuery's event-cloning
+    // depends on `withDataAndEvents` support that the registered toolbar
+    // commands don't opt into.
+    const $original = $(this);
+    const $clone = $original.clone();
+    $clone.on('click', (evt) => {
+      evt.preventDefault();
+      $original.trigger('click');
+    });
+    $('#inline_toolbar_menu_items').append($clone);
   });
   const padOuter = $('iframe[name="ace_outer"]').contents().find('body');
   $('#inline_toolbar').css('background-color', 'transparent');
