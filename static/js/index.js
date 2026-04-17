@@ -67,7 +67,12 @@ exports.postToolbarInit = (hook, context) => {
     $('#inline_toolbar_menu_items').append($clone);
   });
   const padOuter = $('iframe[name="ace_outer"]').contents().find('body');
-  $('#inline_toolbar').css('background-color', 'transparent');
-  $('#inline_toolbar').css('opacity', '0.8');
+  // The floating toolbar is detached into the ace_outer iframe, which does
+  // not load the main page's `.toolbar` stylesheet. Previously the JS
+  // hard-coded `background-color: transparent`, so the toolbar had no
+  // background at all once detached and the icons appeared to float over
+  // the pad text (regression for #9). Set a solid background so the
+  // toolbar is legible.
+  $('#inline_toolbar').css('background-color', '#ffffff');
   $('#inline_toolbar').detach().appendTo(padOuter[0]);
 };
