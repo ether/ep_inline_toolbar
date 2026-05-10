@@ -1,5 +1,7 @@
 'use strict';
 
+const {template} = require('ep_plugin_helpers');
+
 const eejs = require('ep_etherpad-lite/node/eejs/');
 const settings = require('ep_etherpad-lite/node/utils/Settings');
 
@@ -14,15 +16,11 @@ exports.clientVars = (hookName, context, callback) => {
   });
 };
 
-exports.eejsBlock_body = (hookName, args, cb) => {
-  args.content += eejs.require('ep_inline_toolbar/templates/menuButtons.ejs');
-  cb();
-};
+exports.eejsBlock_body =
+    template('ep_inline_toolbar/templates/menuButtons.ejs');
 
-exports.eejsBlock_mySettings = (hookName, args, cb) => {
-  args.content += eejs.require('ep_inline_toolbar/templates/settings.ejs');
-  cb();
-};
+exports.eejsBlock_mySettings =
+    template('ep_inline_toolbar/templates/settings.ejs');
 
 exports.eejsBlock_scripts = (hookName, args, cb) => {
   cb();
