@@ -28,7 +28,5 @@ exports.eejsBlock_scripts = (hookName, args, cb) => {
 
 
 // not used
-exports.eejsBlock_styles = (hookName, args, cb) => {
-  args.content += eejs.require('ep_inline_toolbar/templates/styles.html', {}, module);
-  cb();
-};
+exports.eejsBlock_styles =
+    template('ep_inline_toolbar/templates/styles.html');
