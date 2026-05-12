@@ -68,11 +68,19 @@ exports.postToolbarInit = (hook, context) => {
   });
   const padOuter = $('iframe[name="ace_outer"]').contents().find('body');
   // The floating toolbar is detached into the ace_outer iframe, which does
-  // not load the main page's `.toolbar` stylesheet. Previously the JS
-  // hard-coded `background-color: transparent`, so the toolbar had no
-  // background at all once detached and the icons appeared to float over
-  // the pad text (regression for #9). Set a solid background so the
-  // toolbar is legible.
-  $('#inline_toolbar').css('background-color', '#ffffff');
+  // not load the main page's `.toolbar` stylesheet. Inject a <style> into
+  // that iframe so the toolbar gets a solid, theme-aware background:
+  // white in light mode and dark in dark mode (mirrors Etherpad's own
+  // toolbar colours). Using a stylesheet rather than an inline style lets
+  // the browser's prefers-color-scheme media query do the work, so the
+  // toolbar automatically adapts without any JS re-evaluation.
+  const outerDoc = $('iframe[name="ace_outer"]')[0].contentDocument;
+  const $style = $('<style>').text(
+      '#inline_toolbar { background-color: #f4f4f4; }\n' +
+      '@media (prefers-color-scheme: dark) {\n' +
+      '  #inline_toolbar { background-color: #1a1a1a; }\n' +
+      '}',
+  );
+  $(outerDoc.head).append($style);
   $('#inline_toolbar').detach().appendTo(padOuter[0]);
 };

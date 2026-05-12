@@ -23,4 +23,24 @@ describe(__filename, function () {
         'index.js should explicitly set a background-color on #inline_toolbar so it is visible ' +
         'in the ace_outer iframe where the default .toolbar stylesheet is not loaded');
   });
+
+  it('postToolbarInit uses a CSS media query for dark-mode support (#dark-mode)', function () {
+    const src = fs.readFileSync(indexPath, 'utf8');
+    // The fix for the dark-mode bug injects a <style> into ace_outer that
+    // contains a prefers-color-scheme: dark rule.  Verify the rule is
+    // present so a future refactor cannot regress this silently.
+    assert(/prefers-color-scheme\s*:\s*dark/.test(src),
+        'index.js must inject a prefers-color-scheme: dark rule so the inline ' +
+        'toolbar background adapts in dark mode');
+    // The hardcoded white (#ffffff or white keyword) must not be used as
+    // the sole background – it breaks dark mode.
+    const code = src
+        .replace(/\/\/[^\n]*/g, '')
+        .replace(/\/\*[\s\S]*?\*\//g, '');
+    const hardcodedWhite =
+        /\.css\(\s*['"]background-color['"]\s*,\s*['"](?:#fff(?:fff)?|white)['"]\s*\)/;
+    assert(!hardcodedWhite.test(code),
+        'index.js must not hard-code a white background via .css() — use a ' +
+        'prefers-color-scheme media query instead so dark mode works');
+  });
 });
