@@ -14,8 +14,13 @@ const iT = {
 };
 
 exports.aceSelectionChanged = (hook, context) => {
-  const selStart = context.rep.selStart;
-  const selEnd = context.rep.selEnd;
+  // Guard for timeslider playback: broadcasted revisions can fire
+  // selection-change events with a partially-initialized rep. Without
+  // this guard, accessing rep.selStart[0] throws "Cannot read properties
+  // of undefined" and surfaces as an error gritter popup (#5214 test).
+  const rep = context && context.rep;
+  if (!rep || !rep.selStart || !rep.selEnd) return;
+  const {selStart, selEnd} = rep;
   if ((selStart[0] !== selEnd[0]) || (selStart[1] !== selEnd[1])) {
     iT.show();
   } else {
@@ -31,7 +36,13 @@ exports.postAceInit = (hookName, context) => {
   });
   padInner.on('mouseup', (e) => {
     const toolbar = padOuter.find('#inline_toolbar');
-    const left = e.pageX + padOuter.find('iframe').offset().left;
+    // If #inline_toolbar wasn't rendered (e.g. timeslider context, which
+    // doesn't include the eejsBlock_body template), or the ace_outer
+    // iframe hasn't laid out yet, skip the positioning to avoid a
+    // .offset().left throw.
+    const iframeOffset = padOuter.find('iframe').offset();
+    if (!toolbar.length || !iframeOffset) return;
+    const left = e.pageX + iframeOffset.left;
     toolbar.css({
       position: 'absolute',
       left,
@@ -42,11 +53,19 @@ exports.postAceInit = (hookName, context) => {
 
 // Creates the buttons based on settings and draws them hidden on the screen
 exports.postToolbarInit = (hook, context) => {
+  // #inline_toolbar lives in eejsBlock_body, which is only rendered for
+  // the regular pad layout. In timeslider context the element doesn't
+  // exist; everything below this guard would either no-op or throw on
+  // null contentDocument / missing iframe.
+  if (!$('#inline_toolbar').length) return;
+
   let buttonsToShow = [];
   if (clientVars.ep_inline_toolbar && clientVars.ep_inline_toolbar.length) {
     buttonsToShow = clientVars.ep_inline_toolbar[0];
-  } else {
+  } else if (clientVars.ep_inline_toolbar && clientVars.ep_inline_toolbar.left) {
     buttonsToShow = clientVars.ep_inline_toolbar.left.flat();
+  } else {
+    return; // unrecognized settings shape — nothing to render
   }
   $('#editbar .menu_left').children('[data-key]').each(function () {
     const key = $(this).data('key');
@@ -74,13 +93,18 @@ exports.postToolbarInit = (hook, context) => {
   // toolbar colours). Using a stylesheet rather than an inline style lets
   // the browser's prefers-color-scheme media query do the work, so the
   // toolbar automatically adapts without any JS re-evaluation.
-  const outerDoc = $('iframe[name="ace_outer"]')[0].contentDocument;
-  const $style = $('<style>').text(
-      '#inline_toolbar { background-color: #f4f4f4; }\n' +
-      '@media (prefers-color-scheme: dark) {\n' +
-      '  #inline_toolbar { background-color: #1a1a1a; }\n' +
-      '}',
-  );
-  $(outerDoc.head).append($style);
-  $('#inline_toolbar').detach().appendTo(padOuter[0]);
+  const aceOuter = $('iframe[name="ace_outer"]')[0];
+  const outerDoc = aceOuter && aceOuter.contentDocument;
+  if (outerDoc && outerDoc.head) {
+    const $style = $('<style>').text(
+        '#inline_toolbar { background-color: #f4f4f4; }\n' +
+        '@media (prefers-color-scheme: dark) {\n' +
+        '  #inline_toolbar { background-color: #1a1a1a; }\n' +
+        '}',
+    );
+    $(outerDoc.head).append($style);
+  }
+  if (padOuter.length) {
+    $('#inline_toolbar').detach().appendTo(padOuter[0]);
+  }
 };
