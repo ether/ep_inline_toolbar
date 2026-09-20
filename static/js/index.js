@@ -100,7 +100,7 @@ exports.postToolbarInit = (hook, context) => {
         '#inline_toolbar { background-color: #f4f4f4; }\n' +
         '@media (prefers-color-scheme: dark) {\n' +
         '  #inline_toolbar { background-color: #1a1a1a; }\n' +
-        '}',
+        '}'
     );
     $(outerDoc.head).append($style);
   }
