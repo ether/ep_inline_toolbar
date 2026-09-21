@@ -8,7 +8,7 @@ const indexPath = path.resolve(__dirname, '..', '..', '..', '..', 'static', 'js'
 
 describe(__filename, function () {
   it('postToolbarInit clones buttons instead of moving them (regression #10 #11 #66)',
-      function () {
+      async function () {
         const src = fs.readFileSync(indexPath, 'utf8');
         const postToolbar = src.match(/exports\.postToolbarInit\s*=\s*[\s\S]*?\n\};/);
         assert(postToolbar, 'expected postToolbarInit export in static/js/index.js');
@@ -24,7 +24,7 @@ describe(__filename, function () {
             'postToolbarInit should use .clone() so the main toolbar keeps its buttons');
       });
 
-  it('does not hide buttons that are absent from the inline toolbar config', function () {
+  it('does not hide buttons that are absent from the inline toolbar config', async function () {
     const src = fs.readFileSync(indexPath, 'utf8');
     const postToolbar = src.match(/exports\.postToolbarInit\s*=\s*[\s\S]*?\n\};/);
     const body = postToolbar[0];
